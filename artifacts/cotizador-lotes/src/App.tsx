@@ -18,8 +18,17 @@ const queryClient = new QueryClient();
 function Home() {
   const [price, setPrice] = useState(20000);
   const [downPayment, setDownPayment] = useState(2000);
+  const [downPaymentInput, setDownPaymentInput] = useState('2000');
   const [months, setMonths] = useState(24);
+  const [monthsInput, setMonthsInput] = useState('24');
   const [monthlyRate, setMonthlyRate] = useState(0);
+  const parsedMonthsInput = Number(monthsInput);
+  const monthsInputValid =
+    monthsInput.trim() !== '' &&
+    Number.isInteger(parsedMonthsInput) &&
+    parsedMonthsInput >= 1 &&
+    parsedMonthsInput <= 600 &&
+    parsedMonthsInput === months;
 
   const calculations = useMemo(() => {
     const financed = Math.max(0, price - downPayment);
@@ -46,14 +55,47 @@ function Home() {
   const updatePrice = (value: number, resetInitial = false) => {
     const nextPrice = Math.max(1, Number.isFinite(value) ? value : 1);
     setPrice(nextPrice);
-    setDownPayment((current) => resetInitial
+    const nextDownPayment = resetInitial
       ? Math.round(nextPrice * 0.1)
-      : Math.min(current, nextPrice));
+      : Math.min(downPayment, nextPrice);
+    setDownPayment(nextDownPayment);
+    setDownPaymentInput(String(nextDownPayment));
   };
-  const updateDownPayment = (value: number) =>
-    setDownPayment(Math.min(price, Math.max(0, Number.isFinite(value) ? value : 0)));
+  const updateDownPayment = (value: number) => {
+    const nextDownPayment = Math.min(price, Math.max(0, Number.isFinite(value) ? value : 0));
+    setDownPayment(nextDownPayment);
+    setDownPaymentInput(String(nextDownPayment));
+  };
+  const editDownPayment = (value: string) => {
+    setDownPaymentInput(value);
+    if (value.trim() === '') {
+      setDownPayment(0);
+      return;
+    }
+    const numericValue = Number(value);
+    if (Number.isFinite(numericValue)) updateDownPayment(numericValue);
+  };
   const chooseInitialPercent = (percent: number) =>
     updateDownPayment(Math.round(price * percent / 100));
+  const chooseTerm = (term: number) => {
+    setMonths(term);
+    setMonthsInput(String(term));
+  };
+  const editMonths = (value: string) => {
+    setMonthsInput(value);
+    if (value.trim() === '') return;
+    const numericValue = Number(value);
+    if (Number.isInteger(numericValue) && numericValue >= 1 && numericValue <= 600) {
+      setMonths(numericValue);
+    }
+  };
+  const finishMonthsEdit = () => {
+    if (!monthsInputValid) {
+      setMonthsInput(String(months));
+      return;
+    }
+    chooseTerm(parsedMonthsInput);
+  };
 
   const shareQuote = () => {
     const text = [
@@ -143,12 +185,14 @@ function Home() {
                   min="0"
                   max={price}
                   step="1"
-                  value={downPayment}
+                  value={downPaymentInput}
                   aria-label="Monto de la cuota inicial en soles"
                   data-testid="input-down-payment"
-                  onChange={(event) => updateDownPayment(Number(event.currentTarget.value))}
+                  onChange={(event) => editDownPayment(event.currentTarget.value)}
+                  onBlur={() => setDownPaymentInput(String(downPayment))}
                 />
               </label>
+              <p className="input-helper">Puedes escribir el monto exacto en soles.</p>
               <div className="range-meta" style={{ marginTop: 17 }}>
                 <span>Sin inicial</span><span>{wholeMoney(price)}</span>
               </div>
@@ -193,11 +237,40 @@ function Home() {
                     key={term}
                     aria-pressed={months === term}
                     data-testid={`button-term-${term}`}
-                    onClick={() => setMonths(term)}
+                    onClick={() => chooseTerm(term)}
                   >
                     {term} meses
                   </button>
                 ))}
+              </div>
+              <div className="custom-term">
+                <label className="custom-term-label" htmlFor="custom-term-months">O escribe otro plazo</label>
+                <div className="custom-term-input-wrap">
+                  <input
+                    id="custom-term-months"
+                    className="money-input custom-term-input"
+                    type="number"
+                    min="1"
+                    max="600"
+                    step="1"
+                    value={monthsInput}
+                    aria-label="Plazo personalizado en meses"
+                    aria-invalid={!monthsInputValid}
+                    aria-describedby="custom-term-hint"
+                    data-testid="input-custom-term"
+                    onChange={(event) => editMonths(event.currentTarget.value)}
+                    onBlur={finishMonthsEdit}
+                  />
+                  <span className="custom-term-suffix">meses</span>
+                </div>
+                <p
+                  className={`input-helper ${monthsInputValid ? '' : 'input-helper-error'}`}
+                  id="custom-term-hint"
+                >
+                  {monthsInputValid
+                    ? 'Ingresa un número entero entre 1 y 600 meses.'
+                    : 'Escribe un número entero entre 1 y 600 meses para actualizar la cuota.'}
+                </p>
               </div>
             </article>
 
@@ -251,7 +324,13 @@ function Home() {
                 <dt>Monto total final</dt><dd data-testid="text-final-total">{money(calculations.finalTotal)}</dd>
               </div>
             </dl>
-            <button className="share-button" type="button" data-testid="button-share-whatsapp" onClick={shareQuote}>
+            <button
+              className="share-button"
+              type="button"
+              data-testid="button-share-whatsapp"
+              onClick={shareQuote}
+              disabled={!monthsInputValid}
+            >
               <MessageCircle size={18} strokeWidth={2.1} />
               Compartir cotización por WhatsApp
             </button>

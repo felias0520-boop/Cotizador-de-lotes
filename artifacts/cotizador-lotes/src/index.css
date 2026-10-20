@@ -475,6 +475,12 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 }
 .money-input:focus { border-color: rgba(65, 212, 155, .66); background: rgba(10, 20, 29, .82); }
 .input-helper { margin: 8px 0 0; color: #788a96; font-size: 11px; }
+.input-helper-error { color: #f1b6a5; }
+.custom-term { margin-top: 14px; }
+.custom-term-label { display: block; margin-bottom: 8px; color: #a1b0b9; font-size: 11px; }
+.custom-term-input-wrap { position: relative; }
+.custom-term-input { padding-left: 14px; padding-right: 68px; }
+.custom-term-suffix { position: absolute; top: 50%; right: 14px; transform: translateY(-50%); color: #7f929e; font: 500 12px var(--app-font-mono); pointer-events: none; }
 .range-meta { display: flex; justify-content: space-between; margin: 0 0 8px; color: #82939e; font: 11px var(--app-font-mono); }
 .range-current { color: var(--aqua); font-weight: 600; }
 .range-input {
@@ -522,6 +528,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 }
 .share-button:hover { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 12px 28px rgba(23, 180, 119, .25); }
 .share-button:active { transform: translateY(0); }
+.share-button:disabled { cursor: not-allowed; opacity: .55; transform: none; }
 .share-note { margin: 12px 0 0; color: #78908f; font-size: 10px; line-height: 1.5; text-align: center; }
 .page-footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 27px; padding-top: 17px; border-top: 1px solid rgba(184, 204, 216, .1); color: #72818c; font-size: 11px; }
 .page-footer strong { color: #a6b5bd; font-weight: 600; }
