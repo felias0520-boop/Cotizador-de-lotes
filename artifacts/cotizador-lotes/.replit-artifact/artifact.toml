@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Cotizador de Lotes"
+description = "Calculadora web en español para estimar el financiamiento de lotes según precio, cuota inicial, plazo e interés mensual, con opción de compartir la cotización por WhatsApp."
+version = "1.0.0"
+id = "artifacts/cotizador-lotes"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20393
+
+[services.development]
+run = "pnpm --filter @workspace/cotizador-lotes run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cotizador-lotes", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cotizador-lotes/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20393"
+BASE_PATH = "/"

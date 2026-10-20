@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cotizador de Lotes</title>
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    button.opt-btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 6px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button.opt-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+    }
+
+    .input-box {
+      position: relative;
+    }
+
+    .input-box input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 12px 14px 12px 38px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .input-box span.prefix {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 5px;
+      background: #334155;
+      outline: none;
+      margin-top: 8px;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 2px solid #fff;
+    }
+
+    .result-box {
+      background: linear-gradient(145deg, #065f46, #047857);
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(5, 150, 105, 0.25);
+    }
+
+    .result-label {
+      font-size: 0.8rem;
+      color: #d1fae5;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .result-amount {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 6px 0 10px 0;
+    }
+
+    .result-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    .result-details div span {
+      display: block;
+      color: #a7f3d0;
+      font-size: 0.72rem;
+    }
+
+    .result-details div strong {
+      font-size: 0.95rem;
+    }
+
+    .whatsapp-btn {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Calculadora de Lotes</h1>
+    <p>Simulador rápido de financiamiento</p>
+  </header>
+
+  <!-- Precio del Lote -->
+  <div class="card">
+    <div class="label">Precio del Lote</div>
+    <div class="btn-grid">
+      <button class="opt-btn" onclick="setPrecio(15000)">S/ 15,000</button>
+      <button class="opt-btn active" onclick="setPrecio(20000)">S/ 20,000</button>
+      <button class="opt-btn" onclick="setPrecio(25000)">S/ 25,000</button>
+    </div>
+    <div class="input-box">
+      <span class="prefix">S/</span>
+      <input type="number" id="precioInput" value="20000" oninput="manualPrecio()">
+    </div>
+  </div>
+
+  <!-- Cuota Inicial -->
+  <div class="card">
+    <div class="label">
+      <span>Cuota Inicial</span>
+      <span id="txtInicialPct" style="color: var(--accent);">10%</span>
+    </div>
+    <div class="input-box">
+      <span class="prefix">S/</span>
+      <input type="number" id="inicialInput" value="2000" oninput="manualInicial()">
+    </div>
+    <input type="range" class="slider" id="inicialSlider" min="0" max="20000" step="100" value="2000" oninput="sliderInicial()">
+    <div class="btn-grid">
+      <button class="opt-btn" onclick="setInicialPct(0)">Sin Inicial</button>
+      <button class="opt-btn" onclick="setInicialPct(10)">10%</button>
+      <button class="opt-btn" onclick="setInicialPct(20)">20%</button>
+    </div>
+  </div>
+
+  <!-- Plazo -->
+  <div class="card">
+    <div class="label">Plazo de Financiamiento</div>
+    <div class="btn-grid">
+      <button class="opt-btn plazo-btn" onclick="setPlazo(12, this)">12 Meses</button>
+      <button class="opt-btn plazo-btn active" onclick="setPlazo(24, this)">24 Meses</button>
+      <button class="opt-btn plazo-btn" onclick="setPlazo(36, this)">36 Meses</button>
+    </div>
+  </div>
+
+  <!-- Interés -->
+  <div class="card">
+    <div class="label">
+      <span>Tasa de Interés Mensual</span>
+      <span id="txtInteres" style="color: var(--accent);">0%</span>
+    </div>
+    <input type="range" class="slider" id="interesSlider" min="0" max="5" step="0.5" value="0" oninput="actualizar()">
+  </div>
+
+  <!-- Resultado -->
+  <div class="result-box">
+    <div class="result-label">Cuota Mensual Estimada</div>
+    <div class="result-amount" id="resCuota">S/ 0.00</div>
+    
+    <div class="result-details">
+      <div>
+        <span>Saldo a Financiar:</span>
+        <strong id="resSaldo">S/ 0.00</strong>
+      </div>
+      <div>
+        <span>Total Intereses:</span>
+        <strong id="resInteresTotal">S/ 0.00</strong>
+      </div>
+      <div>
+        <span>Plazo:</span>
+        <strong id="resPlazoTexto">24 Meses</strong>
+      </div>
+      <div>
+        <span>Monto Total Final:</span>
+        <strong id="resTotalPagar">S/ 0.00</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón WhatsApp -->
+  <button class="whatsapp-btn" onclick="compartirWhatsApp()">
+    📲 Enviar Cotización por WhatsApp
+  </button>
+</div>
+
+<script>
+  let precio = 20000;
+  let inicial = 2000;
+  let meses = 24;
+  let tasaMensual = 0; // en porcentaje
+
+  function setPrecio(valor) {
+    precio = valor;
+    document.getElementById('precioInput').value = valor;
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      if (b.innerText.includes(valor.toLocaleString())) b.classList.add('active');
+      else if (b.innerText.includes('15,000') || b.innerText.includes('20,000') || b.innerText.includes('25,000')) {
+        b.classList.remove('active');
+      }
+    });
+    setInicialPct(10);
+  }
+
+  function manualPrecio() {
+    precio = parseFloat(document.getElementById('precioInput').value) || 0;
+    actualizarMaxInicial();
+    actualizar();
+  }
+
+  function setInicialPct(pct) {
+    inicial = Math.round(precio * (pct / 100));
+    document.getElementById('inicialInput').value = inicial;
+    document.getElementById('inicialSlider').value = inicial;
+    actualizar();
+  }
+
+  function sliderInicial() {
+    inicial = parseFloat(document.getElementById('inicialSlider').value);
+    document.getElementById('inicialInput').value = inicial;
+    actualizar();
+  }
+
+  function manualInicial() {
+    inicial = parseFloat(document.getElementById('inicialInput').value) || 0;
+    document.getElementById('inicialSlider').value = inicial;
+    actualizar();
+  }
+
+  function actualizarMaxInicial() {
+    const s = document.getElementById('inicialSlider');
+    s.max = precio;
+    if (inicial > precio) inicial = precio;
+  }
+
+  function setPlazo(cantMeses, btn) {
+    meses = cantMeses;
+    document.querySelectorAll('.plazo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    actualizar();
+  }
+
+  function calcularCuota(capital, tasa, n) {
+    if (tasa === 0) return capital / n;
+    let r = tasa / 100;
+    return capital * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function actualizar() {
+    actualizarMaxInicial();
+    tasaMensual = parseFloat(document.getElementById('interesSlider').value);
+    document.getElementById('txtInteres').innerText = tasaMensual + '%';
+
+    let pctInicial = precio > 0 ? Math.round((inicial / precio) * 100) : 0;
+    document.getElementById('txtInicialPct').innerText = pctInicial + '%';
+
+    let saldo = Math.max(0, precio - inicial);
+    let cuota = saldo > 0 ? calcularCuota(saldo, tasaMensual, meses) : 0;
+    let totalFinanciadoConInteres = cuota * meses;
+    let totalIntereses = Math.max(0, totalFinanciadoConInteres - saldo);
+    let totalFinal = inicial + totalFinanciadoConInteres;
+
+    // Pintar valores
+    document.getElementById('resCuota').innerText = 'S/ ' + cuota.toFixed(2);
+    document.getElementById('resSaldo').innerText = 'S/ ' + saldo.toFixed(2);
+    document.getElementById('resInteresTotal').innerText = 'S/ ' + totalIntereses.toFixed(2);
+    document.getElementById('resPlazoTexto').innerText = meses + ' Meses';
+    document.getElementById('resTotalPagar').innerText = 'S/ ' + totalFinal.toFixed(2);
+  }
+
+  function compartirWhatsApp() {
+    let cuota = document.getElementById('resCuota').innerText;
+    let saldo = document.getElementById('resSaldo').innerText;
+    let texto = `*🏡 COTIZACIÓN DE LOTE*%0A` +
+                `----------------------------------%0A` +
+                `*Precio Total:* S/ ${precio.toLocaleString()}%0A` +
+                `*Inicial:* S/ ${inicial.toLocaleString()} (${document.getElementById('txtInicialPct').innerText})%0A` +
+                `*Saldo a financiar:* ${saldo}%0A` +
+                `*Plazo:* ${meses} meses%0A` +
+                `*Tasa mensual:* ${tasaMensual}%%0A` +
+                `*Cuota mensual:* ${cuota}%0A` +
+                `----------------------------------%0A` +
+                `_¿Deseas agendar una visita al terreno?_`;
+    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+  }
+
+  // Inicializar
+  actualizar();
+</script>
+</body>
+</html>
